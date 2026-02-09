@@ -42,6 +42,8 @@ export async function getTranscript(
   const apiUrl = `${config.supadata.baseUrl}/transcript?${params.toString()}`;
 
   try {
+    console.log('[DEBUG] Supadata API request:', apiUrl)
+
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
@@ -50,7 +52,10 @@ export async function getTranscript(
       },
     });
 
+    console.log('[DEBUG] Supadata API response status:', response.status)
+
     const data = await response.json();
+    console.log('[DEBUG] Supadata API response data:', JSON.stringify(data).substring(0, 500))
 
     // Handle 202 Accepted - async job
     if (response.status === 202) {
@@ -98,6 +103,20 @@ export async function getTranscript(
     }
 
     if (response.status === 206) {
+      console.log('[DEBUG] Supadata returned 206 - checking for available languages')
+      // 206 might contain available languages
+      if (data.availableLangs && Array.isArray(data.availableLangs) && data.availableLangs.length > 0) {
+        console.log('[DEBUG] Available languages:', data.availableLangs)
+        // Try to get transcript with first available language
+        const firstLang = data.availableLangs[0]
+        console.log('[DEBUG] Trying with language:', firstLang)
+        // Return jobId to retry with specific language
+        throw new SupadataError(
+          `Transcript available in languages: ${data.availableLangs.join(', ')}. Please specify language.`,
+          'TRANSCRIPT_UNAVAILABLE',
+          response.status,
+        )
+      }
       throw new SupadataError(
         'Transcript unavailable for this video',
         'TRANSCRIPT_UNAVAILABLE',
