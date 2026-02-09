@@ -13,40 +13,23 @@ import { toast } from "sonner"
 
 interface ResultStateProps {
   url: string
+  result: {
+    summary: string
+    keyPoints: string[]
+    confidence: number
+  }
   onReset: () => void
 }
 
-const MOCK_VIDEO = {
-  title: "Как сформировать привычки, которые останутся навсегда",
-  channel: "Пример канала",
-  duration: "18:42",
-}
-
-const MOCK_SUMMARY = `В этом видео рассматривается наука формирования привычек и практические стратегии для устойчивых поведенческих изменений. Автор опирается на исследования из области поведенческой психологии, объясняя, почему большинство привычек не приживаются и что отличает временные изменения от постоянных.
-
-Основная модель строится на трёх принципах: сделать привычку очевидной, привлекательной и простой для начала. Вместо того чтобы полагаться только на мотивацию, автор утверждает, что организация среды и снижение барьеров гораздо эффективнее. Маленькие «стартовые» привычки длительностью менее двух минут рекомендуются как отправная точка.
-
-Видео завершается обсуждением систем подотчётности и методов отслеживания. Автор подчёркивает, что регулярность важнее интенсивности, а один пропущенный день наносит гораздо меньший ущерб, чем нарратив провала, который часто за ним следует.`
-
-const MOCK_KEY_POINTS = [
-  "Привычки формируются через системы, а не силу воли или мотивацию",
-  "Организация среды — самый недооценённый фактор формирования привычек",
-  "Начинайте с «двухминутной версии» любой привычки, чтобы снизить барьер",
-  "Стыковка привычек: привязывайте новые действия к уже существующим ритуалам",
-  "Визуальное отслеживание привычек повышает последовательность на 40%",
-  "Один пропущенный день не разрушает привычку, два — запускают новый паттерн",
-  "Вознаграждайте себя сразу после выполнения, чтобы закрепить цикл",
-]
-
-export function ResultState({ url, onReset }: ResultStateProps) {
+export function ResultState({ url, result, onReset }: ResultStateProps) {
   function handleCopy() {
-    const text = `# ${MOCK_VIDEO.title}\n\n## Summary\n\n${MOCK_SUMMARY}\n\n## Key Points\n\n${MOCK_KEY_POINTS.map((p) => `- ${p}`).join("\n")}`
+    const text = `# YouTube Video Summary\n\n## Summary\n\n${result.summary}\n\n## Key Points\n\n${result.keyPoints.map((p) => `- ${p}`).join("\n")}`
     navigator.clipboard.writeText(text)
     toast.success("Скопировано в буфер обмена")
   }
 
   function handleDownload() {
-    const text = `# ${MOCK_VIDEO.title}\n\n**Канал:** ${MOCK_VIDEO.channel}\n**Длительность:** ${MOCK_VIDEO.duration}\n**Источник:** ${url}\n\n## Краткое содержание\n\n${MOCK_SUMMARY}\n\n## Ключевые тезисы\n\n${MOCK_KEY_POINTS.map((p) => `- ${p}`).join("\n")}\n\n---\n*Создано YouTube Summarizer*`
+    const text = `# YouTube Video Summary\n\n**Источник:** ${url}\n\n## Краткое содержание\n\n${result.summary}\n\n## Ключевые тезисы\n\n${result.keyPoints.map((p) => `- ${p}`).join("\n")}\n\n---\n*Создано YouTube Summarizer*`
     const blob = new Blob([text], { type: "text/markdown" })
     const a = document.createElement("a")
     a.href = URL.createObjectURL(blob)
@@ -69,16 +52,16 @@ export function ResultState({ url, onReset }: ResultStateProps) {
           </div>
           <div className="flex flex-1 flex-col justify-center gap-2 p-4 md:py-5 md:pr-6 md:pl-2">
             <h2 className="text-lg font-semibold leading-snug text-foreground md:text-xl">
-              {MOCK_VIDEO.title}
+              {url.split('v=')[1]?.split('&')[0] ? `YouTube Video: ${url.split('v=')[1]?.split('&')[0]}` : 'YouTube Video Summary'}
             </h2>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <User className="h-3.5 w-3.5" />
-                {MOCK_VIDEO.channel}
+                YouTube
               </span>
               <span className="flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" />
-                {MOCK_VIDEO.duration}
+                AI Generated
               </span>
             </div>
             <a
@@ -146,7 +129,7 @@ export function ResultState({ url, onReset }: ResultStateProps) {
         <CardContent className="flex flex-col gap-4 p-6 md:p-8">
           <h2 className="text-xl font-semibold text-foreground">Краткое содержание</h2>
           <div className="flex flex-col gap-4 text-base leading-relaxed text-foreground/90">
-            {MOCK_SUMMARY.split("\n\n").map((paragraph, i) => (
+            {result.summary.split("\n\n").map((paragraph: string, i: number) => (
               <p key={i}>{paragraph}</p>
             ))}
           </div>
@@ -158,7 +141,7 @@ export function ResultState({ url, onReset }: ResultStateProps) {
         <CardContent className="flex flex-col gap-4 p-6 md:p-8">
           <h2 className="text-xl font-semibold text-foreground">Ключевые тезисы</h2>
           <ul className="flex flex-col gap-2.5">
-            {MOCK_KEY_POINTS.map((point, i) => (
+            {result.keyPoints.map((point: string, i: number) => (
               <li
                 key={i}
                 className="flex items-start gap-3 text-base leading-relaxed text-foreground/90"

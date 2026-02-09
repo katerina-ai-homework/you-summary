@@ -13,14 +13,30 @@ export function YouTubeSummarizer() {
   const [state, setState] = useState<AppState>("input")
   const [url, setUrl] = useState("")
   const [errorType, setErrorType] = useState<ErrorType>("no_transcript")
+  const [summaryResult, setSummaryResult] = useState<{
+    summary: string
+    keyPoints: string[]
+    confidence: number
+  } | null>(null)
 
   function handleSubmit(submittedUrl: string) {
     setUrl(submittedUrl)
     setState("loading")
   }
 
-  const handleLoadingComplete = useCallback(() => {
+  const handleLoadingComplete = useCallback((result: {
+    summary: string
+    keyPoints: string[]
+    confidence: number
+  }) => {
+    setSummaryResult(result)
     setState("result")
+  }, [])
+
+  const handleLoadingError = useCallback((error: string) => {
+    console.error('[DEBUG] Loading error:', error)
+    setErrorType("no_transcript")
+    setState("error")
   }, [])
 
   function handleCancel() {
@@ -50,9 +66,16 @@ export function YouTubeSummarizer() {
           url={url}
           onCancel={handleCancel}
           onComplete={handleLoadingComplete}
+          onError={handleLoadingError}
         />
       )}
-      {state === "result" && <ResultState url={url} onReset={handleReset} />}
+      {state === "result" && summaryResult && (
+        <ResultState
+          url={url}
+          result={summaryResult}
+          onReset={handleReset}
+        />
+      )}
       {state === "error" && (
         <ErrorState
           errorType={errorType}
