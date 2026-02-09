@@ -10,9 +10,6 @@ import { checkPostRateLimit, checkGetRateLimit } from '@/lib/rateLimit';
 // Mock dependencies
 vi.mock('@/lib/summarizeService');
 vi.mock('@/lib/rateLimit');
-vi.mock('@/lib/config', () => ({
-  validateConfig: vi.fn(),
-}));
 
 describe('POST /api/v1/summaries', () => {
   beforeEach(() => {
@@ -123,7 +120,7 @@ describe('GET /api/v1/summaries/[jobId]', () => {
     });
 
     const request = new NextRequest('http://localhost/api/v1/summaries/test-job-id');
-    const response = await GET(request, { params: { jobId: 'test-job-id' } });
+    const response = await GET(request, { params: Promise.resolve({ jobId: 'test-job-id' }) });
     const data = await response.json();
 
     expect(response.status).toBe(202);
@@ -141,7 +138,7 @@ describe('GET /api/v1/summaries/[jobId]', () => {
     });
 
     const request = new NextRequest('http://localhost/api/v1/summaries/test-job-id');
-    const response = await GET(request, { params: { jobId: 'test-job-id' } });
+    const response = await GET(request, { params: Promise.resolve({ jobId: 'test-job-id' }) });
     const data = await response.json();
 
     expect(response.status).toBe(404);
@@ -172,7 +169,7 @@ describe('GET /api/v1/summaries/[jobId]', () => {
     });
 
     const request = new NextRequest('http://localhost/api/v1/summaries/test-job-id');
-    const response = await GET(request, { params: { jobId: 'test-job-id' } });
+    const response = await GET(request, { params: Promise.resolve({ jobId: 'test-job-id' }) });
     const data = await response.json();
 
     expect(response.status).toBe(410);
@@ -191,7 +188,7 @@ describe('DELETE /api/v1/summaries/[jobId]', () => {
     const request = new NextRequest('http://localhost/api/v1/summaries/test-job-id', {
       method: 'DELETE',
     });
-    const response = await DELETE(request, { params: { jobId: 'test-job-id' } });
+    const response = await DELETE(request, { params: Promise.resolve({ jobId: 'test-job-id' }) });
 
     expect(response.status).toBe(204);
     expect(cancelJob).toHaveBeenCalledWith('test-job-id');
@@ -203,7 +200,7 @@ describe('DELETE /api/v1/summaries/[jobId]', () => {
     const request = new NextRequest('http://localhost/api/v1/summaries/test-job-id', {
       method: 'DELETE',
     });
-    const response = await DELETE(request, { params: { jobId: 'test-job-id' } });
+    const response = await DELETE(request, { params: Promise.resolve({ jobId: 'test-job-id' }) });
     const data = await response.json();
 
     expect(response.status).toBe(404);

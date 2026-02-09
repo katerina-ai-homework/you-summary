@@ -11,7 +11,7 @@ import { getVideoTitle } from '@/lib/supadataClient';
 // GET - Get job status or result
 export async function GET(
   request: NextRequest,
-  { params }: { params: { jobId: string } },
+  { params }: { params: Promise<{ jobId: string }> },
 ) {
   try {
     // Validate config
@@ -37,7 +37,7 @@ export async function GET(
       return rateLimitErrorResponse(rateLimitResult.limit, rateLimitResult.reset);
     }
 
-    const { jobId } = params;
+    const { jobId } = await params;
 
     // Get job
     const job = await getJob(jobId);
@@ -216,7 +216,7 @@ export async function GET(
 // DELETE - Cancel job
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { jobId: string } },
+  { params }: { params: Promise<{ jobId: string }> },
 ) {
   try {
     // Validate config
@@ -234,7 +234,7 @@ export async function DELETE(
       );
     }
 
-    const { jobId } = params;
+    const { jobId } = await params;
 
     // Cancel job
     const cancelled = await cancelJob(jobId);
