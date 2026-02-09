@@ -177,6 +177,47 @@ export async function getTranscriptJob(
   }
 }
 
+// Get video title from YouTube oEmbed API
+export async function getVideoTitle(url: string): Promise<string | null> {
+  try {
+    // Extract video ID from URL
+    const videoId = extractVideoId(url);
+    if (!videoId) {
+      return null;
+    }
+
+    // Use YouTube oEmbed API to get video info
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+    const response = await fetch(oembedUrl);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.title || null;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Extract video ID from YouTube URL
+function extractVideoId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /^([a-zA-Z0-9_-]{11})$/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+
+  return null;
+}
+
 // Map Supadata error codes to normalized codes
 export function mapSupadataError(error: SupadataError): string {
   const errorMap: Record<string, string> = {

@@ -17,6 +17,7 @@ interface ResultStateProps {
     summary: string
     keyPoints: string[]
     confidence: number
+    title?: string
   }
   onReset: () => void
 }
@@ -52,7 +53,7 @@ export function ResultState({ url, result, onReset }: ResultStateProps) {
           </div>
           <div className="flex flex-1 flex-col justify-center gap-2 p-4 md:py-5 md:pr-6 md:pl-2">
             <h2 className="text-lg font-semibold leading-snug text-foreground md:text-xl">
-              {url.split('v=')[1]?.split('&')[0] ? `YouTube Video: ${url.split('v=')[1]?.split('&')[0]}` : 'YouTube Video Summary'}
+              {result.title || (url.split('v=')[1]?.split('&')[0] ? `YouTube Video: ${url.split('v=')[1]?.split('&')[0]}` : 'YouTube Video Summary')}
             </h2>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">

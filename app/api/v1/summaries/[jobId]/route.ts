@@ -6,6 +6,7 @@ import { getJob, cancelJob } from '@/lib/summarizeService';
 import { processJob } from '@/lib/summarizeService';
 import { checkGetRateLimit, getClientIp, rateLimitErrorResponse } from '@/lib/rateLimit';
 import { validateConfig } from '@/lib/config';
+import { getVideoTitle } from '@/lib/supadataClient';
 
 // GET - Get job status or result
 export async function GET(
@@ -68,6 +69,9 @@ export async function GET(
 
     // If job is completed, return result
     if (job.status === 'completed') {
+      // Get video title
+      const title = await getVideoTitle(job.input.url);
+
       return NextResponse.json(
         {
           jobId: job.id,
@@ -76,6 +80,7 @@ export async function GET(
           meta: {
             transcriptLang: job.supadata.transcriptLang,
             availableLangs: job.supadata.availableLangs,
+            title,
           },
         },
         {

@@ -13,6 +13,7 @@ interface LoadingStateProps {
     summary: string
     keyPoints: string[]
     confidence: number
+    title?: string
   }) => void
   onError: (error: string) => void
 }
@@ -31,6 +32,11 @@ interface JobStatusResponse {
     summary: string
     keyPoints: string[]
     confidence: number
+  }
+  meta?: {
+    transcriptLang?: string
+    availableLangs?: string[]
+    title?: string
   }
   error?: {
     code: string
@@ -84,7 +90,10 @@ export function LoadingState({ url, onCancel, onComplete, onError }: LoadingStat
         // If job is already completed (cached), return result immediately
         if (data.status === "completed" && data.result) {
           console.log("[DEBUG] Job already completed (cached)")
-          onComplete(data.result)
+          onComplete({
+            ...data.result,
+            title: data.meta?.title,
+          })
           return
         }
 
@@ -135,7 +144,10 @@ export function LoadingState({ url, onCancel, onComplete, onError }: LoadingStat
               }
               if (!cancelled) {
                 setProgress(100)
-                onComplete(statusData.result)
+                onComplete({
+                  ...statusData.result,
+                  title: statusData.meta?.title,
+                })
               }
               return
             }

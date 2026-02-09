@@ -17,6 +17,7 @@ export function YouTubeSummarizer() {
     summary: string
     keyPoints: string[]
     confidence: number
+    title?: string
   } | null>(null)
 
   function handleSubmit(submittedUrl: string) {
@@ -28,6 +29,7 @@ export function YouTubeSummarizer() {
     summary: string
     keyPoints: string[]
     confidence: number
+    title?: string
   }) => {
     setSummaryResult(result)
     setState("result")
